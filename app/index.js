@@ -4,6 +4,7 @@ import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import { store } from './store.js';
 import { router } from './router.js';
+import './stylesheets/styles.css';
 
 ReactDOM.render(
     <Provider store={store}>

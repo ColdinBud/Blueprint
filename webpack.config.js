@@ -1,5 +1,6 @@
 // 這邊使用 HtmlWebpackPlugin，將 bundle 好的 <script> 插入到 body。${__dirname} 為 ES6 語法對應到 __dirname  
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 const HTMLWebpackPluginConfig = new HtmlWebpackPlugin({
   template: `${__dirname}/app/index.html`,
@@ -27,7 +28,13 @@ module.exports = {
         query: {
           presets: ['es2015', 'react'],
         },
-      },
+      }, {
+        test: /\.css$/,
+        use: ExtractTextPlugin.extract({
+          fallback: "style-loader",
+          use: "css-loader"
+        })
+      }
     ],
   },
   // devServer 則是 webpack-dev-server 設定
@@ -36,5 +43,8 @@ module.exports = {
     port: 5566,
   },
   // plugins 放置所使用的外掛
-  plugins: [HTMLWebpackPluginConfig],
+  plugins: [
+      new ExtractTextPlugin("styles.css"),
+      HTMLWebpackPluginConfig
+    ],
 };
