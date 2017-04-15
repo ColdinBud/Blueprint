@@ -1,7 +1,8 @@
 import React, {Component} from 'react'
-import { bindActionCreators } from 'redux';
+import { compose, bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import Draggable, { DraggableCore } from 'react-draggable';
+import { Field, FieldArray, reduxForm } from 'redux-form';
 
 import * as testAreaActionCreators from '../actions/testArea';
 
@@ -27,7 +28,7 @@ class Home extends Component {
         this.props.testAreaActions.addTest("TEST AREA TEXT");
     }
 
-    addPiece() {
+    addPiece(fields) {
         
         console.log("ADDDDDD");
         let tempPieces = this.state.pieces;
@@ -37,12 +38,43 @@ class Home extends Component {
 
         this.setState({pieces: tempPieces});
 
+        fields.push({ id: "circle", xAxis: 0, yAxis: 0});
+    }
 
+    onSubmitForm(formData) {
+        console.log("formData", formData);
     }
 
     render () {
 
         const { deltaPosition } = this.state;
+        const { handleSubmit, pristine, reset, submitting } = this.props;
+
+        const renderField = ({ input, label,type, meta:{ touched, error } }) => (
+            <div>
+                <input {...input} type={type} placeholder={label} />
+                { touched && error && <span>{error}</span> }
+            </div>
+        );
+
+        const renderMembers = ({ fields, meta:{ touched, error } }) => (
+            <ul>
+                <li>
+                    <button type="button" onClick={this.addPiece.bind(this, fields)}> Add Field </button>
+                    { touched && error && <span>{error}</span> }
+                </li>
+                {
+                    fields.map((member, index) =>
+                        <li key={index}>
+                            <button type="button" title="Remove Field" onClick={() => fields.remove(index)} />
+                            <h6>#{index+1}</h6>
+                            <Field name={`${member}.xAxis`} type="text" component={renderField} label="xAxis" />
+                            <Field name={`${member}.yAxis`} type="text" component={renderField} label="yAxis" />
+                        </li>
+                    )
+                }
+            </ul>
+        );
 
         let pieces = [];
         if(this.state.pieces.length > 0) {
@@ -60,13 +92,16 @@ class Home extends Component {
         return (
             <div className="page-home">
                 <h4>Home!</h4>
-                <button onClick={this.clickTestArea}>
-                    TEST
-                </button>
 
-                <button onClick={this.addPiece.bind(this)} >
-                    Add
-                </button>
+                <form onSubmit={handleSubmit(this.onSubmitForm.bind(this))}>
+                    <Field name="clubName" type="text" component={renderField} label="Club Name" />
+                    <FieldArray name="member" component={renderMembers} />
+                    <div>
+                        <button type="submit" disabled={ submitting }> Submit </button>
+                        <button type="button" disabled={ pristine || submitting } onClick={reset}> Clear Value </button>
+                    </div>
+                </form>
+
 
                 <div className="base" id="base">
                     
@@ -98,4 +133,9 @@ function mapDispatchToProps(dispatch) {
     };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Home);
+export default compose(
+    connect(mapStateToProps, mapDispatchToProps),
+    reduxForm({
+        form: 'fieldArrays'
+    })
+)(Home);
