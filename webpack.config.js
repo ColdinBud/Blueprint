@@ -34,6 +34,9 @@ module.exports = {
           fallback: "style-loader",
           use: "css-loader"
         })
+      }, {
+        test: /\.(png|jpg|jpeg|gif|ttf|eot|svg|woff|woff2)([\?]?.*)$/,
+        loader: 'file-loader?name=[path][name].[ext]'
       }
     ],
   },
