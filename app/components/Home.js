@@ -30,7 +30,6 @@ class Home extends Component {
 
     addPiece(fields) {
         
-        console.log("ADDDDDD");
         let tempPieces = this.state.pieces;
 
         let piece = {id: "circle", xAxis: 0, yAxis: 0};
